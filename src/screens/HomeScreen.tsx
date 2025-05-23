@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Circle } from 'react-native-maps';
 import { FAB } from 'react-native-paper';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../types/navigation';
+import { useStats } from '../hooks/useStats';
 
 const { width, height } = Dimensions.get('window');
 
@@ -12,35 +13,44 @@ export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const navigation = useNavigation<NavigationProp>();
+  const { updateLocationStats } = useStats();
+
+  const handleLocationUpdate = useCallback((newLocation: Location.LocationObject) => {
+    setLocation(newLocation);
+    updateLocationStats(newLocation);
+  }, [updateLocationStats]);
 
   useEffect(() => {
-    (async () => {
+    let subscription: Location.LocationSubscription;
+
+    const setupLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permesso di localizzazione negato');
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      const initialLocation = await Location.getCurrentPositionAsync({});
+      handleLocationUpdate(initialLocation);
 
-      // Inizia il tracciamento della posizione
-      const subscription = await Location.watchPositionAsync(
+      subscription = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.Balanced,
           timeInterval: 5000,
           distanceInterval: 10,
         },
-        (newLocation) => {
-          setLocation(newLocation);
-        }
+        handleLocationUpdate
       );
+    };
 
-      return () => {
+    setupLocation();
+
+    return () => {
+      if (subscription) {
         subscription.remove();
-      };
-    })();
-  }, []);
+      }
+    };
+  }, [handleLocationUpdate]);
 
   return (
     <View style={styles.container}>
