@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Fog of War Explorer",
+    "slug": "fog-of-war-explorer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fogofwarexplorer.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Questa app necessita della tua posizione per tracciare le aree che esplori.",
+        "NSLocationAlwaysUsageDescription": "Questa app necessita della tua posizione per tracciare le aree che esplori anche quando l'app è in background.",
+        "UIBackgroundModes": ["location", "fetch"]
+      }
+    },
+    "android": {
+      "package": "com.fogofwarexplorer.app",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Questa app necessita della tua posizione per tracciare le aree che esplori."
+        }
+      ]
+    ]
+  }
+}
